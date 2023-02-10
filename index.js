@@ -1,38 +1,48 @@
 let myDocs = []
-const inputEl = document.getElementById("input-el")
+// const inputEl = document.getElementById("input-el")
 const inputBtn = document.getElementById("input-btn")
 const ulEl = document.getElementById('ul-el')
+const clearBtn = document.getElementById('clear-btn')
 
+// on startup
 let docsFromLocalStorage = JSON.parse(localStorage.getItem('myDocs'))
 let boolDocsFromLocalStorage = Boolean(docsFromLocalStorage)
 if (boolDocsFromLocalStorage){
 	myDocs = docsFromLocalStorage
-	renderDocs()
+	renderDocs(myDocs)
 }
 
+// event listeners
 inputBtn.addEventListener("click", function(){
 	
-	// push input into myDocs
-	myDocs.push(inputEl.value)
-	
-	// clear input textbox
-	inputEl.value = ""
+	// get url of current page
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+		let tabUrl = tabs[0].url
+		myDocs.push(tabUrl)
+	})
 
 	// set myDocs in localStorage
 	localStorage.setItem("myDocs", JSON.stringify(myDocs))
 
 	// call renderDocs
-	renderDocs()
+	renderDocs(myDocs)
 })
 
-function renderDocs(){
+clearBtn.addEventListener('dblclick', function(){
+	localStorage.clear()
+	myDocs = []
+	renderDocs(myDocs)
+})
+
+// functions
+function renderDocs(docs){
 	let listItems = ""
-	for (let i=0; i<myDocs.length; i++){
+	for (let i=0; i<docs.length; i++){
 		listItems += 
 		`
 		<li>
-			<a target='_blank' href=${myDocs[i]}> 
-				${myDocs[i]}
+			<a target='_blank' href=${docs[i]}> 
+				${docs[i]}
 			</a>
 		</li>
 		`
